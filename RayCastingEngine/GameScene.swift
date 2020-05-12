@@ -10,63 +10,102 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene {
-    
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
-    
+
+
+    var touchPos: CGPoint?
+    var screenBounds: CGRect = CGRect.zero
+    var viewController: GameViewController!
+
+    var b: Boundry!
+    var r: Ray!
+
+    var boundries: [Boundry] = []
+
+    var particle: Particle!
+
     override func didMove(to view: SKView) {
+        screenBounds = view.bounds
+        touchPos = nil
+
+        randomWalls()
+        edgeWalls()
         
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
-        
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
-        
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
+        r = Ray(position: CGPoint(x: 60.0, y: 400.0), angle: 0)
+        //addChild(r)
+
+        particle = Particle(position: CGPoint(x: 50, y: 200))
+        addChild(particle)
+        for r in particle.rays {
+            addChild(r)
         }
     }
-    
-    
+
+    func randomWalls() {
+        for _ in 0...5 {
+            let x1 = CGFloat.random(in: 0...screenBounds.width)
+            let y1 = CGFloat.random(in: 0...screenBounds.height)
+            let x2 = CGFloat.random(in: 0...screenBounds.width)
+            let y2 = CGFloat.random(in: 0...screenBounds.height)
+            b = Boundry(start: CGPoint(x: x1, y: y1), end: CGPoint(x: x2, y: y2))
+            boundries.append(b)
+        }
+
+        for b in boundries {
+            addChild(b)
+        }
+
+    }
+    func edgeWalls() {
+        let bottomLeft = CGPoint.zero
+        let topLeft = CGPoint(x: 0, y: screenBounds.height)
+        let topRight = CGPoint(x: screenBounds.width, y: screenBounds.height)
+        let bottomRight = CGPoint(x: screenBounds.width, y: 0
+        )
+        let leftWall = Boundry(start:bottomLeft, end: topLeft)
+        let topWall = Boundry(start:topLeft, end: topRight)
+        let rightWall = Boundry(start:topRight, end: bottomRight)
+        let bottomWall = Boundry(start:bottomRight, end: bottomLeft)
+
+        boundries.append(leftWall)
+        boundries.append(topWall)
+        boundries.append(rightWall)
+        boundries.append(bottomWall)
+        addChild(leftWall)
+        addChild(topWall)
+        addChild(rightWall)
+        addChild(bottomWall)
+
+    }
+
     func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
+        touchPos = pos
+        //r.lookAt(pos: pos)
+
     }
-    
+
+    func squareSprite(point: CGPoint, color: UIColor) {
+        let centerSprite = SKSpriteNode(color: color, size: CGSize(width: 4, height: 4))
+        centerSprite.position = point
+
+        let wait = SKAction.wait(forDuration: 0.00001)
+        let remove = SKAction.removeFromParent()
+        let seq = SKAction.sequence([wait, remove])
+        centerSprite.run(seq)
+        addChild(centerSprite)
+    }
+
     func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
+        touchPos = pos
+        //r.lookAt(pos: pos)
+        particle.position = pos
+
     }
     
     func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
+        touchPos = nil
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-        }
-        
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
     
@@ -84,6 +123,21 @@ class GameScene: SKScene {
     
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        if r == nil {
+            return
+        }
+        particle.draw()
+
+        let detects = particle.detectBoundry(boundries: boundries)
+
+        //for p in detects {
+        //    squareSprite(point: p, color: .orange)
+        //}
+        //r.draw()
+        //let intersect = r.cast(boundry: b)
+        //if intersect != nil {
+            //quareSprite(point: intersect!, color: .orange)
+        //}
+
     }
 }
