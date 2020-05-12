@@ -80,6 +80,8 @@ class GameScene: SKScene {
     func touchDown(atPoint pos : CGPoint) {
         touchPos = pos
         //r.lookAt(pos: pos)
+        particle.position = pos
+
 
     }
 
