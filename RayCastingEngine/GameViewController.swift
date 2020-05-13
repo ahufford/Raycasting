@@ -23,7 +23,7 @@ class GameViewController: UIViewController {
         skView.ignoresSiblingOrder = true
         scene!.scaleMode = .aspectFit
         scene!.viewController = self
-
+        self.canBecomeFirstResponder // for motion
         skView.presentScene(scene)
     }
 
@@ -36,6 +36,13 @@ class GameViewController: UIViewController {
             return .allButUpsideDown
         } else {
             return .all
+        }
+    }
+
+    // Enable detection of shake motion
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        if motion == .motionShake {
+            scene!.newWalls()
         }
     }
 

@@ -11,6 +11,7 @@ import GameplayKit
 
 class GameScene: SKScene {
 
+    let innerWall = "innerWall"
 
     var touchPos: CGPoint?
     var screenBounds: CGRect = CGRect.zero
@@ -28,7 +29,6 @@ class GameScene: SKScene {
     var viewController: GameViewController!
 
     var b: Boundry!
-    var r: Ray!
 
     var boundries: [Boundry] = []
 
@@ -44,9 +44,6 @@ class GameScene: SKScene {
 
         randomWalls()
         edgeWalls()
-        
-        r = Ray(position: CGPoint(x: 60.0, y: 400.0), angle: 0)
-        //addChild(r)
 
         particle = Particle(position: CGPoint(x: 50, y: 200), screenWidth: threeDBounds.width)
 
@@ -57,6 +54,15 @@ class GameScene: SKScene {
     }
 
 
+    func newWalls() {
+        for b in boundries {
+            b.removeFromParent()
+        }
+        boundries.removeAll()
+        randomWalls()
+        edgeWalls()
+    }
+
     func randomWalls() {
         for _ in 0...5 {
             let x1 = CGFloat.random(in: 0...twoDBounds.width)
@@ -65,6 +71,7 @@ class GameScene: SKScene {
             let y2 = CGFloat.random(in: 0...twoDBounds.height)
 
             b = Boundry(start: CGPoint(x: x1, y: y1), end: CGPoint(x: x2, y: y2), color: getRandomColor())
+            b.name = innerWall
             boundries.append(b)
         }
 
@@ -159,9 +166,7 @@ class GameScene: SKScene {
     
     
     override func update(_ currentTime: TimeInterval) {
-        if r == nil {
-            return
-        }
+
 
         if turnLeft {
             particle.turn(right: false)
