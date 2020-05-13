@@ -12,19 +12,21 @@ import SpriteKit
 class Boundry: SKShapeNode {
     var a: CGPoint
     var b: CGPoint
+    var color: SKColor
 
 
-    init(start: CGPoint, end: CGPoint) {
+    init(start: CGPoint, end: CGPoint, color: SKColor) {
         a = start
         b = end
-
+        self.color = color
+        
         super.init()
 
         let pathToDraw = CGMutablePath()
         pathToDraw.move(to: a)
         pathToDraw.addLine(to: b)
         self.path = pathToDraw
-        self.strokeColor = .red
+        self.strokeColor = color
 
     }
 

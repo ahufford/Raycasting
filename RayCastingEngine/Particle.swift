@@ -24,7 +24,7 @@ class Particle: SKShapeNode {
         super.init()
         self.position = position
         self.screenWidth = screenWidth
-        setFOV(degrees: 50.0)
+        setFOV(degrees: 40.0)
         self.dir = CGPoint(angle: 0)
     }
 
@@ -79,14 +79,17 @@ class Particle: SKShapeNode {
     }
 
     struct RayInfo {
-      let point: CGPoint
-      let dir: CGPoint
+        let point: CGPoint
+        let dir: CGPoint
+        let boundryTouching: Boundry
     }
 
     func detectBoundry(boundries: [Boundry]) -> [RayInfo] {
         var points: [RayInfo] = []
         for ray in rays {
             var closest: CGPoint? = nil
+            var boundry: Boundry? = nil
+
             var record = CGFloat.infinity
             for b in boundries {
                 let point = ray.cast(boundry: b)
@@ -95,12 +98,13 @@ class Particle: SKShapeNode {
                     if distance < record {
                         record = distance
                         closest = point
+                        boundry = b
                     }
                 }
             }
             if closest != nil {
                 ray.drawToIntersect(point: closest!)
-                points.append(RayInfo(point: closest!, dir: ray.dir))
+                points.append(RayInfo(point: closest!, dir: ray.dir, boundryTouching: boundry!))
             }
         }
         return points

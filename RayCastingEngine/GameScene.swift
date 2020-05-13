@@ -63,7 +63,8 @@ class GameScene: SKScene {
             let y1 = CGFloat.random(in: 0...twoDBounds.height)
             let x2 = CGFloat.random(in: 0...twoDBounds.width)
             let y2 = CGFloat.random(in: 0...twoDBounds.height)
-            b = Boundry(start: CGPoint(x: x1, y: y1), end: CGPoint(x: x2, y: y2))
+
+            b = Boundry(start: CGPoint(x: x1, y: y1), end: CGPoint(x: x2, y: y2), color: getRandomColor())
             boundries.append(b)
         }
 
@@ -72,16 +73,32 @@ class GameScene: SKScene {
         }
 
     }
+    func getRandomColor() -> SKColor {
+        let rand = Int.random(in: 1...4)
+        switch rand {
+        case 1:
+            return .blue
+        case 2:
+            return .red
+        case 3:
+            return .green
+        case 4:
+            return .orange
+        default:
+            return .white
+        }
+    }
+
     func edgeWalls() {
         let bottomLeft = CGPoint.zero
         let topLeft = CGPoint(x: 0, y: twoDBounds.height)
         let topRight = CGPoint(x: twoDBounds.width, y: twoDBounds.height)
         let bottomRight = CGPoint(x: twoDBounds.width, y: 0
         )
-        let leftWall = Boundry(start:bottomLeft, end: topLeft)
-        let topWall = Boundry(start:topLeft, end: topRight)
-        let rightWall = Boundry(start:topRight, end: bottomRight)
-        let bottomWall = Boundry(start:bottomRight, end: bottomLeft)
+        let leftWall = Boundry(start:bottomLeft, end: topLeft, color: .white)
+        let topWall = Boundry(start:topLeft, end: topRight, color: .white)
+        let rightWall = Boundry(start:topRight, end: bottomRight, color: .white)
+        let bottomWall = Boundry(start:bottomRight, end: bottomLeft, color: .white)
 
         boundries.append(leftWall)
         boundries.append(topWall)
@@ -166,7 +183,11 @@ class GameScene: SKScene {
         let detects = particle.detectBoundry(boundries: boundries)
         //let distances = distanceFrom(position: particle.position , detections: detects)
         let distances = projectedDistance(position: particle.position, angle: particle.dir.angle, detections: detects)
-        draw3d(distances: distances)
+        var colors: [SKColor] = []
+        for d in detects {
+            colors.append(d.boundryTouching.color)
+        }
+        draw3d(distances: distances, colors: colors)
 
 
         //for p in detects {
@@ -206,7 +227,7 @@ class GameScene: SKScene {
         return distances
     }
 
-    func draw3d(distances: [CGFloat]?) {
+    func draw3d(distances: [CGFloat]?, colors: [SKColor]) {
         for wall in wallLines {
             wall.removeFromParent()
         }
@@ -225,7 +246,9 @@ class GameScene: SKScene {
             pathToDraw.addLine(to: CGPoint(x: threeDBounds.width - CGFloat(i), y: threeDBounds.origin.y + threeDBounds.height / 2 + drawLength / 2))
             wallLine.path = pathToDraw
 
-            wallLine.strokeColor = SKColor.init(displayP3Red: 1.0, green: 1.0, blue: 1.0, alpha: 1 - (d/maxViewDistance))
+            var color = colors[i]
+            color = color.withAlphaComponent( 1 - (d/maxViewDistance) )
+            wallLine.strokeColor = color
 
             wallLines.append(wallLine)
             addChild(wallLine)
