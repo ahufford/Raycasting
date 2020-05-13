@@ -12,13 +12,14 @@ import SpriteKit
 class Particle: SKShapeNode {
 
     let turnRate: CGFloat = 0.025
-    let moveSpeed: CGFloat = 3
+    let moveSpeed: CGFloat = 1.0
 
 
     var rays: [Ray] = []
     var screenWidth: CGFloat = 0.0
     var FOV:CGFloat = 40.0
     var dir: CGPoint = CGPoint.zero
+    var cameraPlane: CGPoint = CGPoint(angle: CGFloat.pi / 2)
 
     init(position: CGPoint, screenWidth: CGFloat) {
         super.init()
@@ -51,6 +52,7 @@ class Particle: SKShapeNode {
             let newDir = dir.angle - turnRate
             let newDirPoint = CGPoint(angle: newDir)
             dir = newDirPoint
+            cameraPlane = dir + CGPoint(angle: CGFloat.pi / 2)
         } else {
             for ray in rays {
                 let angle = ray.dir.angle + turnRate
@@ -60,6 +62,7 @@ class Particle: SKShapeNode {
             let newDir = dir.angle + turnRate
             let newDirPoint = CGPoint(angle: newDir)
             dir = newDirPoint
+
         }
     }
 

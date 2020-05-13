@@ -42,8 +42,8 @@ class GameScene: SKScene {
         print(threeDBounds)
         touchPos = nil
 
-        randomWalls()
-        edgeWalls()
+        newWalls()
+        //edgeWalls()
 
         particle = Particle(position: CGPoint(x: 50, y: 200), screenWidth: threeDBounds.width)
 
@@ -59,27 +59,45 @@ class GameScene: SKScene {
             b.removeFromParent()
         }
         boundries.removeAll()
-        randomWalls()
         edgeWalls()
     }
 
-    func randomWalls() {
-        for _ in 0...5 {
-            let x1 = CGFloat.random(in: 0...twoDBounds.width)
-            let y1 = CGFloat.random(in: 0...twoDBounds.height)
-            let x2 = CGFloat.random(in: 0...twoDBounds.width)
-            let y2 = CGFloat.random(in: 0...twoDBounds.height)
+    func randomBlocks() {
 
-            b = Boundry(start: CGPoint(x: x1, y: y1), end: CGPoint(x: x2, y: y2), color: getRandomColor())
-            b.name = innerWall
-            boundries.append(b)
-        }
-
-        for b in boundries {
-            addChild(b)
+        for _ in 1...4 {
+            let color = getRandomColor()
+            let randPos = CGPoint(x: CGFloat.random(in: twoDBounds.origin.x...twoDBounds.width), y: CGFloat.random(in: twoDBounds.origin.y...twoDBounds.height))
+            createBlock(position: randPos, color: color)
         }
 
     }
+
+    let xSide = "xSide"
+    let ySide = "ySide"
+
+    func createBlock(position: CGPoint, color: SKColor) {
+        let blockSize = 60
+        let side1 = Boundry(start: position, end: position + CGPoint(x: blockSize, y: 0), color: color)
+        let side2 = Boundry(start: position + CGPoint(x: 0, y: blockSize), end: position  + CGPoint(x: blockSize, y: blockSize), color: color)
+        let side3 = Boundry(start: position, end: position + CGPoint(x: 0, y: blockSize), color: color)
+        let side4 = Boundry(start: position + CGPoint(x: blockSize, y: 0), end: position + CGPoint(x: blockSize, y: blockSize), color: color)
+
+        side1.name = xSide
+        side2.name = xSide
+        side3.name = ySide
+        side4.name = ySide
+
+        boundries.append(side1)
+        boundries.append(side2)
+        boundries.append(side3)
+        boundries.append(side4)
+
+        addChild(side1)
+        addChild(side2)
+        addChild(side3)
+        addChild(side4)
+    }
+
     func getRandomColor() -> SKColor {
         let rand = Int.random(in: 1...4)
         switch rand {
@@ -88,7 +106,7 @@ class GameScene: SKScene {
         case 2:
             return .red
         case 3:
-            return .green
+            return .brown
         case 4:
             return .orange
         default:
@@ -97,15 +115,17 @@ class GameScene: SKScene {
     }
 
     func edgeWalls() {
+        let wallColor = SKColor.black
+
         let bottomLeft = CGPoint.zero
         let topLeft = CGPoint(x: 0, y: twoDBounds.height)
         let topRight = CGPoint(x: twoDBounds.width, y: twoDBounds.height)
         let bottomRight = CGPoint(x: twoDBounds.width, y: 0
         )
-        let leftWall = Boundry(start:bottomLeft, end: topLeft, color: .white)
-        let topWall = Boundry(start:topLeft, end: topRight, color: .white)
-        let rightWall = Boundry(start:topRight, end: bottomRight, color: .white)
-        let bottomWall = Boundry(start:bottomRight, end: bottomLeft, color: .white)
+        let leftWall = Boundry(start:bottomLeft, end: topLeft, color: wallColor)
+        let topWall = Boundry(start:topLeft, end: topRight, color: wallColor)
+        let rightWall = Boundry(start:topRight, end: bottomRight, color: wallColor)
+        let bottomWall = Boundry(start:bottomRight, end: bottomLeft, color: wallColor)
 
         boundries.append(leftWall)
         boundries.append(topWall)
@@ -120,9 +140,9 @@ class GameScene: SKScene {
 
     func touchDown(atPoint pos : CGPoint) {
         touchPos = pos
-
-
-
+        if twoDBounds.contains(pos) {
+            createBlock(position: pos, color: getRandomColor())
+        }
     }
 
     func squareSprite(point: CGPoint, color: UIColor) {
@@ -186,11 +206,15 @@ class GameScene: SKScene {
         particle.draw()
 
         let detects = particle.detectBoundry(boundries: boundries)
-        //let distances = distanceFrom(position: particle.position , detections: detects)
+        //let distances = distanceFrom(position: particle.position, detections: detects)
         let distances = projectedDistance(position: particle.position, angle: particle.dir.angle, detections: detects)
         var colors: [SKColor] = []
         for d in detects {
-            colors.append(d.boundryTouching.color)
+            var color = d.boundryTouching.color
+            if d.boundryTouching.name == xSide {
+                color = color.adjust(by: 20) ?? color
+            }
+            colors.append(color)
         }
         draw3d(distances: distances, colors: colors)
 
@@ -206,19 +230,20 @@ class GameScene: SKScene {
 
     }
 
-    func distanceFrom(position: CGPoint, detections: [CGPoint]) -> [CGFloat]? {
+    func distanceFrom(position: CGPoint, detections: [Particle.RayInfo]) -> [CGFloat]? {
         if detections.count == 0 {
             return nil
         }
         var distances: [CGFloat] = []
         for det in detections {
-            distances.append(det.distanceTo(position))
+            distances.append(det.point.distanceTo(position))
         }
         return distances
     }
     // this is the projection of the ray to the view
 
     func projectedDistance(position: CGPoint, angle: CGFloat, detections: [Particle.RayInfo]) -> [CGFloat]? {
+
         if detections.count == 0 {
             return nil
         }
@@ -246,13 +271,12 @@ class GameScene: SKScene {
             let d = distances![i]
             let wallLine = SKShapeNode()
             let pathToDraw = CGMutablePath()
-            let drawLength = threeDBounds.height * (1 - (d / maxViewDistance))
+            let drawLength = threeDBounds.height * (1 - (d / threeDBounds.height))
             pathToDraw.move(to: CGPoint(x: threeDBounds.width - CGFloat(i), y: threeDBounds.origin.y + threeDBounds.height / 2 - drawLength / 2))
             pathToDraw.addLine(to: CGPoint(x: threeDBounds.width - CGFloat(i), y: threeDBounds.origin.y + threeDBounds.height / 2 + drawLength / 2))
             wallLine.path = pathToDraw
 
-            var color = colors[i]
-            color = color.withAlphaComponent( 1 - (d/maxViewDistance) )
+            let color = colors[i]
             wallLine.strokeColor = color
 
             wallLines.append(wallLine)

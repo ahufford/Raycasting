@@ -370,3 +370,27 @@ extension CGPoint {
         return (firstPoint: p1, secondPoint: p2)
     }
 }
+
+extension SKColor {
+
+    func lighter(by percentage: CGFloat = 30.0) -> SKColor? {
+        return self.adjust(by: abs(percentage) )
+    }
+
+    func darker(by percentage: CGFloat = 30.0) -> SKColor? {
+        return self.adjust(by: -1 * abs(percentage) )
+    }
+
+    func adjust(by percentage: CGFloat = 30.0) -> SKColor? {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        if self.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+            return SKColor(red: min(red + percentage/100, 1.0),
+                           green: min(green + percentage/100, 1.0),
+                           blue: min(blue + percentage/100, 1.0),
+                           alpha: alpha)
+        } else {
+            return nil
+        }
+    }
+}
+
