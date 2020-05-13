@@ -14,6 +14,17 @@ class GameScene: SKScene {
 
     var touchPos: CGPoint?
     var screenBounds: CGRect = CGRect.zero
+    var twoDBounds: CGRect = CGRect.zero
+
+    //movment
+    var turnRight = false
+    var turnLeft = false
+    var goForward = false
+    var goBack = false
+
+    var threeDBounds: CGRect = CGRect.zero
+    var wallLines: [SKShapeNode] = []
+
     var viewController: GameViewController!
 
     var b: Boundry!
@@ -25,6 +36,10 @@ class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
         screenBounds = view.bounds
+        twoDBounds = CGRect(origin: screenBounds.origin, size: CGSize(width: screenBounds.width, height: screenBounds.height / 2))
+        threeDBounds = CGRect(origin: CGPoint(x: 0.0, y: screenBounds.height / 2), size: CGSize(width: screenBounds.width, height: screenBounds.height / 2))
+        print(twoDBounds)
+        print(threeDBounds)
         touchPos = nil
 
         randomWalls()
@@ -33,19 +48,21 @@ class GameScene: SKScene {
         r = Ray(position: CGPoint(x: 60.0, y: 400.0), angle: 0)
         //addChild(r)
 
-        particle = Particle(position: CGPoint(x: 50, y: 200))
+        particle = Particle(position: CGPoint(x: 50, y: 200), screenWidth: threeDBounds.width)
+
         addChild(particle)
         for r in particle.rays {
             addChild(r)
         }
     }
 
+
     func randomWalls() {
         for _ in 0...5 {
-            let x1 = CGFloat.random(in: 0...screenBounds.width)
-            let y1 = CGFloat.random(in: 0...screenBounds.height)
-            let x2 = CGFloat.random(in: 0...screenBounds.width)
-            let y2 = CGFloat.random(in: 0...screenBounds.height)
+            let x1 = CGFloat.random(in: 0...twoDBounds.width)
+            let y1 = CGFloat.random(in: 0...twoDBounds.height)
+            let x2 = CGFloat.random(in: 0...twoDBounds.width)
+            let y2 = CGFloat.random(in: 0...twoDBounds.height)
             b = Boundry(start: CGPoint(x: x1, y: y1), end: CGPoint(x: x2, y: y2))
             boundries.append(b)
         }
@@ -57,9 +74,9 @@ class GameScene: SKScene {
     }
     func edgeWalls() {
         let bottomLeft = CGPoint.zero
-        let topLeft = CGPoint(x: 0, y: screenBounds.height)
-        let topRight = CGPoint(x: screenBounds.width, y: screenBounds.height)
-        let bottomRight = CGPoint(x: screenBounds.width, y: 0
+        let topLeft = CGPoint(x: 0, y: twoDBounds.height)
+        let topRight = CGPoint(x: twoDBounds.width, y: twoDBounds.height)
+        let bottomRight = CGPoint(x: twoDBounds.width, y: 0
         )
         let leftWall = Boundry(start:bottomLeft, end: topLeft)
         let topWall = Boundry(start:topLeft, end: topRight)
@@ -79,8 +96,7 @@ class GameScene: SKScene {
 
     func touchDown(atPoint pos : CGPoint) {
         touchPos = pos
-        //r.lookAt(pos: pos)
-        particle.position = pos
+
 
 
     }
@@ -98,8 +114,9 @@ class GameScene: SKScene {
 
     func touchMoved(toPoint pos : CGPoint) {
         touchPos = pos
-        //r.lookAt(pos: pos)
-        particle.position = pos
+        if twoDBounds.contains(pos) {
+            particle.position = pos
+        }
 
     }
     
@@ -128,9 +145,29 @@ class GameScene: SKScene {
         if r == nil {
             return
         }
+
+        if turnLeft {
+            particle.turn(right: false)
+        } else if turnRight {
+            particle.turn(right: true)
+        }
+
+        if goForward {
+            let vel = particle.dir * particle.moveSpeed
+            particle.position = particle.position + vel
+        } else if goBack {
+            let vel = particle.dir * -particle.moveSpeed
+            particle.position = particle.position + vel
+        }
+
+
         particle.draw()
 
         let detects = particle.detectBoundry(boundries: boundries)
+        //let distances = distanceFrom(position: particle.position , detections: detects)
+        let distances = projectedDistance(position: particle.position, angle: particle.dir.angle, detections: detects)
+        draw3d(distances: distances)
+
 
         //for p in detects {
         //    squareSprite(point: p, color: .orange)
@@ -142,4 +179,59 @@ class GameScene: SKScene {
         //}
 
     }
+
+    func distanceFrom(position: CGPoint, detections: [CGPoint]) -> [CGFloat]? {
+        if detections.count == 0 {
+            return nil
+        }
+        var distances: [CGFloat] = []
+        for det in detections {
+            distances.append(det.distanceTo(position))
+        }
+        return distances
+    }
+    // this is the projection of the ray to the view
+
+    func projectedDistance(position: CGPoint, angle: CGFloat, detections: [Particle.RayInfo]) -> [CGFloat]? {
+        if detections.count == 0 {
+            return nil
+        }
+        var distances: [CGFloat] = []
+        for det in detections {
+            var d = position.distanceTo(det.point)
+            let a = det.dir.angle - angle
+            d *= cos(a)
+            distances.append(d)
+        }
+        return distances
+    }
+
+    func draw3d(distances: [CGFloat]?) {
+        for wall in wallLines {
+            wall.removeFromParent()
+        }
+        wallLines.removeAll()
+        let maxViewDistance = max(twoDBounds.width, twoDBounds.height)
+
+        if distances == nil {
+            return
+        }
+        for i in 0...distances!.count - 1 {
+            let d = distances![i]
+            let wallLine = SKShapeNode()
+            let pathToDraw = CGMutablePath()
+            let drawLength = threeDBounds.height * (1 - (d / maxViewDistance))
+            pathToDraw.move(to: CGPoint(x: threeDBounds.width - CGFloat(i), y: threeDBounds.origin.y + threeDBounds.height / 2 - drawLength / 2))
+            pathToDraw.addLine(to: CGPoint(x: threeDBounds.width - CGFloat(i), y: threeDBounds.origin.y + threeDBounds.height / 2 + drawLength / 2))
+            wallLine.path = pathToDraw
+
+            wallLine.strokeColor = SKColor.init(displayP3Red: 1.0, green: 1.0, blue: 1.0, alpha: 1 - (d/maxViewDistance))
+
+            wallLines.append(wallLine)
+            addChild(wallLine)
+        }
+
+
+    }
+
 }

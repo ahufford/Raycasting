@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -9,16 +10,87 @@
         <!--Game View Controller-->
         <scene sceneID="tXr-a1-R10">
             <objects>
-                <viewController id="BV1-FR-VrT" customClass="GameViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BV1-FR-VrT" customClass="GameViewController" customModule="RayCastingEngine" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" multipleTouchEnabled="YES" contentMode="scaleToFill" id="3se-qz-xqx" customClass="SKView">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sDw-ry-S7g">
+                                <rect key="frame" x="194" y="786" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="6kY-Ff-Rea"/>
+                                    <constraint firstAttribute="height" constant="100" id="R8K-cC-bPS"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="left"/>
+                                <connections>
+                                    <action selector="leftCanceled:" destination="BV1-FR-VrT" eventType="touchUpOutside" id="Kqc-TY-Ley"/>
+                                    <action selector="leftCanceled:" destination="BV1-FR-VrT" eventType="touchUpInside" id="ejA-ZB-LSx"/>
+                                    <action selector="leftPressed:" destination="BV1-FR-VrT" eventType="touchDown" id="gZz-KB-cTJ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9Ae-9k-0gn">
+                                <rect key="frame" x="304" y="786" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="4FY-hr-FWA"/>
+                                    <constraint firstAttribute="height" constant="100" id="iUh-IN-ibX"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="right"/>
+                                <connections>
+                                    <action selector="rightCanceled:" destination="BV1-FR-VrT" eventType="touchUpOutside" id="Be9-52-TNz"/>
+                                    <action selector="rightCanceled:" destination="BV1-FR-VrT" eventType="touchUpInside" id="oFw-Vc-zas"/>
+                                    <action selector="rightPressed:" destination="BV1-FR-VrT" eventType="touchDown" id="Ili-Hm-Ycz"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8k5-bj-Rtm">
+                                <rect key="frame" x="10" y="786" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="C8f-bF-uPf"/>
+                                    <constraint firstAttribute="height" constant="100" id="ycy-Ry-5iK"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="down"/>
+                                <connections>
+                                    <action selector="backCanceled:" destination="BV1-FR-VrT" eventType="touchUpInside" id="Ic0-SF-SRP"/>
+                                    <action selector="backCanceled:" destination="BV1-FR-VrT" eventType="touchUpOutside" id="egz-0Q-Xtc"/>
+                                    <action selector="backPressed:" destination="BV1-FR-VrT" eventType="touchDown" id="fEp-TK-qWq"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="74Q-QN-CGv">
+                                <rect key="frame" x="10" y="676" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="VsV-IE-epx"/>
+                                    <constraint firstAttribute="width" constant="100" id="lQF-sP-H8D"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="up"/>
+                                <connections>
+                                    <action selector="forwardCanceled:" destination="BV1-FR-VrT" eventType="touchUpInside" id="UPZ-FZ-2d4"/>
+                                    <action selector="forwardCanceled:" destination="BV1-FR-VrT" eventType="touchUpOutside" id="z6I-z2-LwD"/>
+                                    <action selector="forwardPressed:" destination="BV1-FR-VrT" eventType="touchDown" id="YhS-RO-cUv"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="9Ae-9k-0gn" firstAttribute="leading" secondItem="sDw-ry-S7g" secondAttribute="trailing" constant="10" id="0s5-bh-aG3"/>
+                            <constraint firstItem="4qk-I5-YsI" firstAttribute="trailing" secondItem="9Ae-9k-0gn" secondAttribute="trailing" constant="10" id="3pb-la-TT4"/>
+                            <constraint firstAttribute="bottom" secondItem="8k5-bj-Rtm" secondAttribute="bottom" constant="10" id="6zJ-O4-UTT"/>
+                            <constraint firstAttribute="bottom" secondItem="sDw-ry-S7g" secondAttribute="bottom" constant="10" id="78O-ms-QN2"/>
+                            <constraint firstItem="8k5-bj-Rtm" firstAttribute="leading" secondItem="3se-qz-xqx" secondAttribute="leading" constant="10" id="Sw1-i0-5f8"/>
+                            <constraint firstAttribute="bottom" secondItem="9Ae-9k-0gn" secondAttribute="bottom" constant="10" id="XyF-ws-8cD"/>
+                            <constraint firstItem="74Q-QN-CGv" firstAttribute="leading" secondItem="3se-qz-xqx" secondAttribute="leading" constant="10" id="g93-iH-xCa"/>
+                            <constraint firstItem="8k5-bj-Rtm" firstAttribute="top" secondItem="74Q-QN-CGv" secondAttribute="bottom" constant="10" id="v70-6y-Jw8"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="4qk-I5-YsI"/>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="131.8840579710145" y="106.47321428571428"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="down" width="512" height="512"/>
+        <image name="left" width="512" height="512"/>
+        <image name="right" width="512" height="512"/>
+        <image name="up" width="512" height="512"/>
+    </resources>
 </document>

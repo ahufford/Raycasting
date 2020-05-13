@@ -42,4 +42,36 @@ class GameViewController: UIViewController {
     override var prefersStatusBarHidden: Bool {
         return true
     }
+    @IBAction func rightPressed(_ sender: UIButton) {
+        scene!.turnRight = true
+    }
+    @IBAction func rightCanceled(_ sender: UIButton) {
+        scene!.turnRight = false
+
+    }
+    @IBAction func leftPressed(_ sender: UIButton) {
+        scene!.turnLeft = true
+
+    }
+    @IBAction func leftCanceled(_ sender: UIButton) {
+        scene!.turnLeft = false
+
+    }
+
+    @IBAction func forwardPressed(_ sender: UIButton) {
+        scene!.goForward = true
+    }
+    @IBAction func forwardCanceled(_ sender: UIButton) {
+        scene!.goForward = false
+
+    }
+    @IBAction func backPressed(_ sender: UIButton) {
+        scene!.goBack = true
+
+    }
+    @IBAction func backCanceled(_ sender: UIButton) {
+        scene!.goBack = false
+
+    }
+
 }
